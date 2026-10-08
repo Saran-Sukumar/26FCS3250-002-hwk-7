@@ -1,10 +1,42 @@
 @startuml
-skin rose
 
-participant User 
-entity frontend
-entity backend
-entity "Ad Server"
+actor User
+participant Frontend
+participant Backend
 database Database
+participant "Ad Server" as AdServer
+
+User -> Frontend: Open app
+Frontend -> User: Display question input form
+
+User -> Frontend: Submit question
+Frontend -> Backend: Send question
+
+Backend -> Backend: Validate question format
+Backend -> Backend: Check usage policy
+Backend -> Backend: Standardize question using NLP
+
+Backend -> Database: Query answer
+
+alt Answer found
+    Database --> Backend: Answer
+    Backend --> Frontend: Return answer
+
+else Answer not found
+    Database --> Backend: No answer found
+    Backend --> Frontend: "Hmmm... Let me think about it.\nAsk me again in 24 hours."
+    Backend -> Database: Save unanswered question
+end
+
+Frontend -> AdServer: Request advertisement
+AdServer --> Frontend: Advertisement
+
+Frontend --> User: Display response and advertisement
+
+note over Backend,Database
+Human editors periodically review
+unanswered questions, research
+answers, and store them in the database.
+end note
 
 @enduml
